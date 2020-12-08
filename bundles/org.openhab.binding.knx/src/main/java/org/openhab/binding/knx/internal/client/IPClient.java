@@ -40,6 +40,7 @@ import tuwien.auto.calimero.link.KNXNetworkLink;
 import tuwien.auto.calimero.link.KNXNetworkLinkIP;
 import tuwien.auto.calimero.link.medium.KNXMediumSettings;
 import tuwien.auto.calimero.link.medium.TPSettings;
+import tuwien.auto.calimero.secure.Security;
 
 /**
  * IP specific {@link AbstractKNXClient} implementation.
@@ -86,9 +87,10 @@ public class IPClient extends AbstractKNXClient {
             @Nullable InetSocketAddress localEndPoint, boolean useNAT, int autoReconnectPeriod,
             byte[] secureRoutingBackboneGroupKey, long secureRoutingLatencyToleranceMs, byte[] secureTunnelDevKey,
             int secureTunnelUser, byte[] secureTunnelUserKey, ThingUID thingUID, int responseTimeout, int readingPause,
-            int readRetriesLimit, ScheduledExecutorService knxScheduler, StatusUpdateCallback statusUpdateCallback) {
+            int readRetriesLimit, ScheduledExecutorService knxScheduler, StatusUpdateCallback statusUpdateCallback,
+            Security openhabSecurity) {
         super(autoReconnectPeriod, thingUID, responseTimeout, readingPause, readRetriesLimit, knxScheduler,
-                statusUpdateCallback);
+                statusUpdateCallback, openhabSecurity);
         this.ipConnectionType = ipConnectionType;
         this.ip = ip;
         this.localSource = localSource;

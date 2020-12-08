@@ -26,6 +26,7 @@ import tuwien.auto.calimero.KNXException;
 import tuwien.auto.calimero.link.KNXNetworkLink;
 import tuwien.auto.calimero.link.KNXNetworkLinkFT12;
 import tuwien.auto.calimero.link.medium.TPSettings;
+import tuwien.auto.calimero.secure.Security;
 
 /**
  * Serial specific {@link AbstractKNXClient} implementation.
@@ -45,9 +46,9 @@ public class SerialClient extends AbstractKNXClient {
 
     public SerialClient(int autoReconnectPeriod, ThingUID thingUID, int responseTimeout, int readingPause,
             int readRetriesLimit, ScheduledExecutorService knxScheduler, String serialPort, boolean useCemi,
-            StatusUpdateCallback statusUpdateCallback) {
+            StatusUpdateCallback statusUpdateCallback, Security openhabSecurity) {
         super(autoReconnectPeriod, thingUID, responseTimeout, readingPause, readRetriesLimit, knxScheduler,
-                statusUpdateCallback);
+                statusUpdateCallback, openhabSecurity);
         this.serialPort = serialPort;
         this.useCemi = useCemi;
     }
