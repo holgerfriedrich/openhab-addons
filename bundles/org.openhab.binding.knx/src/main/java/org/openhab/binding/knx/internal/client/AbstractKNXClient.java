@@ -12,6 +12,9 @@
  */
 package org.openhab.binding.knx.internal.client;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,6 +28,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.knx.internal.KNXTypeMapper;
 import org.openhab.binding.knx.internal.dpt.KNXCoreTypeMapper;
 import org.openhab.binding.knx.internal.handler.GroupAddressListener;
+import org.openhab.core.OpenHAB;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
 import org.openhab.core.thing.ThingUID;
@@ -48,11 +52,13 @@ import tuwien.auto.calimero.mgmt.ManagementClient;
 import tuwien.auto.calimero.mgmt.ManagementClientImpl;
 import tuwien.auto.calimero.mgmt.ManagementProcedures;
 import tuwien.auto.calimero.mgmt.ManagementProceduresImpl;
-import tuwien.auto.calimero.process.ProcessCommunicationBase;
+import tuwien.auto.calimero.process.ProcessCommunication;
 import tuwien.auto.calimero.process.ProcessCommunicator;
 import tuwien.auto.calimero.process.ProcessCommunicatorImpl;
 import tuwien.auto.calimero.process.ProcessEvent;
 import tuwien.auto.calimero.process.ProcessListener;
+import tuwien.auto.calimero.secure.SecureApplicationLayer;
+import tuwien.auto.calimero.secure.Security;
 
 /**
  * KNX Client which encapsulates the communication with the KNX bus via the calimero libary.
@@ -186,12 +192,26 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
 
             deviceInfoClient = new DeviceInfoClientImpl(managementClient);
 
+            // KNX secure "device" needs to store properties, e.g. sequence numbers.
+            // Store in userdata folder for now.
+            // TODO: ensure this is written from time to time to safeguard against sudden crashes
+            final String folder = OpenHAB.getUserDataFolder();
+            URI ios = null;
+            try {
+                ios = new URI("file:///" + folder + File.separator + "knx_secure_device.xml");
+            } catch (URISyntaxException e) {
+                logger.warn("failure specifying setting file, {}", e.toString());
+            }
+            // no encryption of property file for now
+            final String iosPassword = "";
+
             ProcessCommunicator processCommunicator = new ProcessCommunicatorImpl(link);
             processCommunicator.setResponseTimeout(responseTimeout);
             processCommunicator.addProcessListener(processListener);
             this.processCommunicator = processCommunicator;
 
-            ProcessCommunicationResponder responseCommunicator = new ProcessCommunicationResponder(link);
+            ProcessCommunicationResponder responseCommunicator = new ProcessCommunicationResponder(link,
+                    new SecureApplicationLayer(link, Security.defaultInstallation()));
             this.responseCommunicator = responseCommunicator;
 
             link.addLinkListener(this);
@@ -213,9 +233,8 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
     private void disconnect(@Nullable Exception e) {
         releaseConnection();
         if (e != null) {
-            String message = e.getLocalizedMessage();
             statusUpdateCallback.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR,
-                    message != null ? message : "");
+                    "" + e.getLocalizedMessage());
         } else {
             statusUpdateCallback.updateStatus(ThingStatus.OFFLINE);
         }
@@ -439,7 +458,7 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
         }
     }
 
-    private void sendToKNX(ProcessCommunicationBase communicator, KNXNetworkLink link, GroupAddress groupAddress,
+    private void sendToKNX(ProcessCommunication communicator, KNXNetworkLink link, GroupAddress groupAddress,
             String dpt, Type type) throws KNXException {
         if (!connectIfNotAutomatic()) {
             return;

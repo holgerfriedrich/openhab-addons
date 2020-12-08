@@ -30,6 +30,9 @@ import org.openhab.core.thing.ThingStatusDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tuwien.auto.calimero.secure.KnxSecureException;
+import tuwien.auto.calimero.secure.Security;
+
 /**
  * The {@link IPBridgeThingHandler} is responsible for handling commands, which are
  * sent to one of the channels. It implements a KNX/IP Gateway, that either acts a a
@@ -57,6 +60,15 @@ public class IPBridgeThingHandler extends KNXBridgeBaseThingHandler {
     @Override
     public void initialize() {
         IPBridgeConfiguration config = getConfigAs(IPBridgeConfiguration.class);
+        try {
+            if (initializeSecurity(config.getKeyringFile(), config.getKeyringPassword()))
+                logger.info("KNX security available for {} group addresses, {} devices",
+                        Security.defaultInstallation().groupKeys().size(),
+                        Security.defaultInstallation().deviceToolKeys().size());
+        } catch (KnxSecureException e) {
+            logger.warn("{}", e.toString());
+        }
+        logger.debug("Security: {}", Security.defaultInstallation().groupSenders().toString());
         int autoReconnectPeriod = config.getAutoReconnectPeriod();
         if (autoReconnectPeriod != 0 && autoReconnectPeriod < 30) {
             logger.info("autoReconnectPeriod for {} set to {}s, allowed range is 0 (never) or >30", thing.getUID(),

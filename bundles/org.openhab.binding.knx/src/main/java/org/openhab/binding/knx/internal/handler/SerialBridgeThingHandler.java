@@ -18,6 +18,11 @@ import org.openhab.binding.knx.internal.client.SerialClient;
 import org.openhab.binding.knx.internal.config.SerialBridgeConfiguration;
 import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.ThingStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tuwien.auto.calimero.secure.KnxSecureException;
+import tuwien.auto.calimero.secure.Security;
 
 /**
  * The {@link IPBridgeThingHandler} is responsible for handling commands, which are
@@ -31,6 +36,7 @@ import org.openhab.core.thing.ThingStatus;
 @NonNullByDefault
 public class SerialBridgeThingHandler extends KNXBridgeBaseThingHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(SerialBridgeThingHandler.class);
     private final SerialClient client;
 
     public SerialBridgeThingHandler(Bridge bridge) {
@@ -44,6 +50,15 @@ public class SerialBridgeThingHandler extends KNXBridgeBaseThingHandler {
     @Override
     public void initialize() {
         updateStatus(ThingStatus.UNKNOWN);
+        SerialBridgeConfiguration config = getConfigAs(SerialBridgeConfiguration.class);
+        try {
+            if (initializeSecurity(config.getKeyringFile(), config.getKeyringPassword()))
+                logger.debug("KNX security available for {} group addresses, {} devices",
+                        Security.defaultInstallation().groupKeys().size(),
+                        Security.defaultInstallation().deviceToolKeys().size());
+        } catch (KnxSecureException e) {
+            logger.warn("{}", e.toString());
+        }
         client.initialize();
     }
 

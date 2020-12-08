@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Keyring Project="openHAB test" CreatedBy="ETS 5.7.4 (Build 1093)" Created="2020-10-31T06:35:17" Signature="YYyfHr5YuutGoK9bOPLcGg==" xmlns="http://knx.org/xml/keyring/1">
+  <Backbone MulticastAddress="224.0.23.12" Latency="2000" Key="480bQt90oCDjByEZwzxi8A==" />
+  <Interface Type="Backbone" IndividualAddress="1.0.128">
+    <Group Address="16384" Senders="1.2.72" />
+    <Group Address="17408" Senders="1.2.72" />
+  </Interface>
+  <GroupAddresses>
+    <Group Address="16384" Key="kIhS9Tv+cR0pNJoIIyhByg==" />
+    <Group Address="17408" Key="OSwUn/dq/Mn+phMCZuU5ww==" />
+    <Group Address="17409" Key="V0xUCUr4Ft6qqF6UffraMA==" />
+  </GroupAddresses>
+  <Devices>
+    <Device IndividualAddress="1.0.128" ToolKey="dY1PEXGT7EA8ZrPne2Msaw==" ManagementPassword="aRlmkq2B3UOoWiMen5eHkrDRuw8sSGLZTlIP/uqHmV8=" Authentication="PrC1PZ5yDQ+5TCfbwTkuc0Ci8f+bxt1Ej1LZVfv0yNA=" />
+    <Device IndividualAddress="1.2.72" ToolKey="7tKHLiig7Uxv1mOUc85mdA==" />
+  </Devices>
+</Keyring>
