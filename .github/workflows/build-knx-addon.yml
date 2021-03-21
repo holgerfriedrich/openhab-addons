@@ -1,0 +1,42 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Build knx addon with Maven
+
+on: push
+
+jobs:
+  build302:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Java 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml -pl :org.openhab.binding.knx -Dohc.version=3.0.2
+    - uses: actions/upload-artifact@v2
+      with:
+        name: org.openhab.binding.knx.302
+        path: bundles/org.openhab.binding.knx/target/org.openhab.binding.knx-*.jar
+
+  build31x:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Java 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml -pl :org.openhab.binding.knx
+    - uses: actions/upload-artifact@v2
+      with:
+        name: org.openhab.binding.knx.31x
+        path: bundles/org.openhab.binding.knx/target/org.openhab.binding.knx-*.jar
+

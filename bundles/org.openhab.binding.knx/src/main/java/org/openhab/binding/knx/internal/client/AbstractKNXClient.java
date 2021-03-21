@@ -48,11 +48,13 @@ import tuwien.auto.calimero.mgmt.ManagementClient;
 import tuwien.auto.calimero.mgmt.ManagementClientImpl;
 import tuwien.auto.calimero.mgmt.ManagementProcedures;
 import tuwien.auto.calimero.mgmt.ManagementProceduresImpl;
-import tuwien.auto.calimero.process.ProcessCommunicationBase;
+import tuwien.auto.calimero.process.ProcessCommunication;
 import tuwien.auto.calimero.process.ProcessCommunicator;
 import tuwien.auto.calimero.process.ProcessCommunicatorImpl;
 import tuwien.auto.calimero.process.ProcessEvent;
 import tuwien.auto.calimero.process.ProcessListener;
+import tuwien.auto.calimero.secure.SecureApplicationLayer;
+import tuwien.auto.calimero.secure.Security;
 
 /**
  * KNX Client which encapsulates the communication with the KNX bus via the calimero libary.
@@ -191,12 +193,13 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
             processCommunicator.addProcessListener(processListener);
             this.processCommunicator = processCommunicator;
 
-            ProcessCommunicationResponder responseCommunicator = new ProcessCommunicationResponder(link);
+            ProcessCommunicationResponder responseCommunicator = new ProcessCommunicationResponder(link,
+                    new SecureApplicationLayer(link, Security.defaultInstallation()));
             this.responseCommunicator = responseCommunicator;
 
             link.addLinkListener(this);
 
-            busJob = knxScheduler.scheduleWithFixedDelay(() -> readNextQueuedDatapoint(), 0, readingPause,
+            busJob = knxScheduler.scheduleWithFixedDelay(() -> readNextQueuedDatapoint(), 5, readingPause,
                     TimeUnit.MILLISECONDS);
 
             statusUpdateCallback.updateStatus(ThingStatus.ONLINE);
@@ -439,7 +442,7 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
         }
     }
 
-    private void sendToKNX(ProcessCommunicationBase communicator, KNXNetworkLink link, GroupAddress groupAddress,
+    private void sendToKNX(ProcessCommunication communicator, KNXNetworkLink link, GroupAddress groupAddress,
             String dpt, Type type) throws KNXException {
         if (!connectIfNotAutomatic()) {
             return;
