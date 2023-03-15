@@ -20,6 +20,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.openrewrite.maven</groupId>
+      <artifactId>rewrite-maven-plugin</artifactId>
+      <version>4.42.0</version>
+    </dependency>
+    <dependency>
       <groupId>biz.aQute.bnd</groupId>
       <artifactId>biz.aQute.bnd.annotation</artifactId>
       <version>${bnd.version}</version>
@@ -88,6 +93,23 @@ SPI-Consumer: java.util.ServiceLoader#load(java.lang.Class[tuwien.auto.calimero.
               </tag>
             </tags>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.openrewrite.maven</groupId>
+          <artifactId>rewrite-maven-plugin</artifactId>
+          <version>4.42.0</version>
+          <configuration>
+            <activeRecipes>
+              <recipe>org.openrewrite.java.migrate.UpgradeToJava17</recipe>
+            </activeRecipes>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.openrewrite.recipe</groupId>
+              <artifactId>rewrite-migrate-java</artifactId>
+              <version>1.17.2</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
