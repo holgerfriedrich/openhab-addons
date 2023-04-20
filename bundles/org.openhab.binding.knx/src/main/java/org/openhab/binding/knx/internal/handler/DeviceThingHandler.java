@@ -178,6 +178,8 @@ public class DeviceThingHandler extends BaseThingHandler implements GroupAddress
     }
 
     private void readDatapoint(GroupAddress groupAddress, String dpt) {
+        Thread.currentThread().setName("knx-read");
+        ;
         if (getClient().isConnected()) {
             if (DPTUtil.getAllowedTypes(dpt).isEmpty()) {
                 logger.warn("DPT '{}' is not supported by the KNX binding", dpt);
@@ -367,8 +369,10 @@ public class DeviceThingHandler extends BaseThingHandler implements GroupAddress
                         oldFuture.cancel(true);
                     }
                     if (value instanceof IncreaseDecreaseType type) {
-                        channelFutures.put(channelUID, scheduler.scheduleWithFixedDelay(
-                                () -> postCommand(channelUID, type), 0, frequency, TimeUnit.MILLISECONDS));
+                        channelFutures.put(channelUID, scheduler.scheduleWithFixedDelay(() -> {
+                            Thread.currentThread().setName("knx-command");
+                            postCommand(channelUID, type);
+                        }, 0, frequency, TimeUnit.MILLISECONDS));
                     }
                 } else {
                     if (value instanceof Command command) {
@@ -443,6 +447,7 @@ public class DeviceThingHandler extends BaseThingHandler implements GroupAddress
     }
 
     private void pollDeviceStatus() {
+        Thread.currentThread().setName("knx-polldevicestatus");
         try {
             if (address != null && getClient().isConnected()) {
                 logger.debug("Polling individual address '{}'", address);
