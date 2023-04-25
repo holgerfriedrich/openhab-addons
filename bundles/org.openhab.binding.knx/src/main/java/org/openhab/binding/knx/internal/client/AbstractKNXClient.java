@@ -333,7 +333,6 @@ public abstract class AbstractKNXClient implements NetworkLinkListener, KNXClien
     // datapoint is null at end of the list, warning is misleading
     @SuppressWarnings("null")
     private void readNextQueuedDatapoint() {
-        Thread.currentThread().setName("knx-readqueue");
         if (!connectIfNotAutomatic()) {
             return;
         }

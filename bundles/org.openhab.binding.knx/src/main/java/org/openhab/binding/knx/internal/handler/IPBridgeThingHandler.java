@@ -69,7 +69,6 @@ public class IPBridgeThingHandler extends KNXBridgeBaseThingHandler {
     }
 
     public void initializeLater() {
-        Thread.currentThread().setName("knx-initialize");
         IPBridgeConfiguration config = getConfigAs(IPBridgeConfiguration.class);
         boolean securityAvailable = false;
         try {

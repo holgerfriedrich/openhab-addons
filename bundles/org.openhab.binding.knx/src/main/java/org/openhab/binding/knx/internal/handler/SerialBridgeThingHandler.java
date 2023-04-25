@@ -65,7 +65,6 @@ public class SerialBridgeThingHandler extends KNXBridgeBaseThingHandler {
     }
 
     public void initializeLater() {
-        Thread.currentThread().setName("knx-initialize");
         SerialClient tmpClient = client;
         if (tmpClient != null) {
             tmpClient.initialize();
