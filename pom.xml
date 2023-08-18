@@ -643,7 +643,14 @@ Import-Package: \\
         <version>5.4.1</version>
         <configuration>
           <activeRecipes>
-            <recipe>org.openrewrite.java.migrate.UpgradeToJava17</recipe>
+            <!-- this recipe org.openrewrite.java.migrate.UpgradeToJava17 recipe consists of: -->
+            <recipe>org.openrewrite.java.migrate.Java8toJava11</recipe>
+            <recipe>org.openrewrite.java.migrate.JavaVersion17</recipe>
+            <!-- not wanted recipe>org.openrewrite.java.migrate.lang.StringFormatted -->
+            <recipe>org.openrewrite.github.SetupJavaUpgradeJavaVersion</recipe>
+            <recipe>org.openrewrite.staticanalysis.InstanceOfPatternMatch</recipe>
+            <recipe>org.openrewrite.java.migrate.lang.UseTextBlocks</recipe>
+            <!-- option is true by default convertStringsWithoutNewlines: true -->
           </activeRecipes>
         </configuration>
         <dependencies>
