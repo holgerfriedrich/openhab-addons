@@ -119,6 +119,11 @@ Import-Package: \\
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.openrewrite.maven</groupId>
+        <artifactId>rewrite-maven-plugin</artifactId>
+        <version>5.4.1</version>
+      </dependency>
+      <dependency>
         <groupId>org.openhab.core.bom</groupId>
         <artifactId>org.openhab.core.bom.compile</artifactId>
         <version>${ohc.version}</version>
@@ -417,6 +422,12 @@ Import-Package: \\
         </plugin>
 
         <plugin>
+          <groupId>org.openrewrite.maven</groupId>
+          <artifactId>rewrite-maven-plugin</artifactId>
+          <version>7.37.3</version>
+        </plugin>
+
+        <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
           <version>3.0</version>
@@ -625,6 +636,23 @@ Import-Package: \\
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.openrewrite.maven</groupId>
+        <artifactId>rewrite-maven-plugin</artifactId>
+        <version>5.4.1</version>
+        <configuration>
+          <activeRecipes>
+            <recipe>org.openrewrite.java.migrate.UpgradeToJava17</recipe>
+          </activeRecipes>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.openrewrite.recipe</groupId>
+            <artifactId>rewrite-migrate-java</artifactId>
+            <version>2.0.9</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
     <extensions>
