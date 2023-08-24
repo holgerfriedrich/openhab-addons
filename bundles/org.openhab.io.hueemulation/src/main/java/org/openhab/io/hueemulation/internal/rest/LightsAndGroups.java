@@ -191,8 +191,7 @@ public class LightsAndGroups implements RegistryChangeListener<Item> {
      * The HUE API enforces a Group 0 that contains all lights.
      */
     private void updateGroup0() {
-        cs.ds.groups.get("0").lights = cs.ds.lights.keySet().stream().map(v -> String.valueOf(v))
-                .collect(Collectors.toList());
+        cs.ds.groups.get("0").lights = cs.ds.lights.keySet().stream().map(v -> v).collect(Collectors.toList());
     }
 
     @Override
