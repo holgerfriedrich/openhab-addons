@@ -29,7 +29,8 @@ import io.calimero.link.medium.KNXMediumSettings;
 @NonNullByDefault
 public class CustomKNXNetworkLinkIP extends KNXNetworkLinkIP {
 
-    public static final int TunnelingV1 = KNXNetworkLinkIP.TunnelingV1;
+    // TODO replace TUNNELING by TunnelingV1 on later snapshot (deprecation)
+    public static final int TunnelingV1 = KNXNetworkLinkIP.TUNNELING;
     public static final int TunnelingV2 = KNXNetworkLinkIP.TunnelingV2;
     public static final int ROUTING = KNXNetworkLinkIP.ROUTING;
 
