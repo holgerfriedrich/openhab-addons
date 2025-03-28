@@ -74,7 +74,7 @@ jobs:
 
       - name: Build
         id: build
-        run: './.github/scripts/maven-build'
+        run: './.github/scripts/maven-build verify sat:spotbugs -B -T 1.5C -U -DskipChecks -Dspotless.check.skip=true'
         env:
           CHANGED_FILES: ${{ steps.files.outputs.all }}
           MAVEN_OPTS: >-
@@ -90,21 +90,13 @@ jobs:
           name: build-log-java-${{ matrix.java }}-${{ matrix.os }}
           path: build.log
 
-      - name: Upload SAT Summary Report
-        if: ${{ always() && ((steps.build.outcome == 'success') || (steps.build.outcome == 'failure')) }}
+      - name: Upload SAT
+        if: ${{ always() && ((steps.sat.outcome == 'success') || (steps.sat.outcome == 'failure')) }}
         uses: actions/upload-artifact@v4
         with:
-          name: sat-summary-report
-          path: target/summary_report.html
-
-      - name: Report SAT Errors as Annotations
-        if: ${{ matrix.java == '21' && always() && ((steps.build.outcome == 'success') || (steps.build.outcome == 'failure')) }}
-        uses: ghys/checkstyle-github-action@main
-        with:
-          title: CheckStyle Violations
-          path: '**/checkstyle-result.xml'
-          mode: inline
-
+          name: sat-spotbugs
+          path: "**/target/code-analysis"
+    
       # this will identify modifications to files under source control during the workflow run;
       # untracked files will be included as well!
       - name: Verify Changed Files
@@ -121,3 +113,114 @@ jobs:
         run: |
           echo "::error::Files have changed: $CHANGED_FILES"
           exit 1
+
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [ 'SAT' ]
+        java: [ '21' ]
+        os: [ 'ubuntu-24.04' ]
+    name: ${{matrix.type}}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      if: github.head_ref == ''
+      uses: actions/checkout@v4
+
+    - name: Checkout merge
+      if: github.head_ref != ''
+      uses: actions/checkout@v4
+      with:
+        ref: refs/pull/${{github.event.pull_request.number}}/merge
+
+    - name: Set up Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/org/openhab
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Set up Java ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+
+    # pinning to SHA to mitigate possible supply chain attacks
+    - name: Set up Maven ${{ matrix.maven }}
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
+      with:
+        maven-version: ${{ matrix.maven }}
+
+    # pinning to SHA to mitigate possible supply chain attacks
+    - name: Get Changed Files
+      if: github.head_ref != ''
+      id: files
+      uses: Ana06/get-changed-files@25f79e676e7ea1868813e21465014798211fad8c # v2.3.0
+      with:
+        format: 'csv'
+
+    - name: Static Code Analysis
+      if: ${{ matrix.type == 'sat' }}
+      id: sat
+      run: './.github/scripts/maven-build sat:pmd sat:checkstyle -B -T 1.5C -U -Dspotless.check.skip=true -Dmaven.test.skip -Dfeatures.verify.skip=true'
+
+    - name: Upload SAT
+      if: ${{ always() && ((steps.sat.outcome == 'success') || (steps.sat.outcome == 'failure')) }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: sat-pmd-checkstyle
+        path: "**/target/code-analysis"
+
+      
+  aggregate:
+    needs: [build, checks]
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [ 'SAT' ]
+        java: [ '21' ]
+        os: [ 'ubuntu-24.04' ]
+    name: ${{matrix.type}}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Set up Java ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+
+    # pinning to SHA to mitigate possible supply chain attacks
+    - name: Set up Maven ${{ matrix.maven }}
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
+      with:
+        maven-version: ${{ matrix.maven }}
+
+    - name: Download Findings
+      uses: actions/download-artifact@v4
+      with:
+        pattern: sat-*
+        merge-multiple: true
+
+    - name: Create Report
+      id: report
+      run: './.github/scripts/maven-build sat:report -B -T 1.5C -U -Dspotless.check.skip=true -Dmaven.test.skip -Dfeatures.verify.skip=true'
+
+    - name: Upload SAT Summary Report
+      if: ${{ always() && ((steps.report.outcome == 'success') || (steps.report.outcome == 'failure')) }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: sat-summary-report
+        path: target/summary_report.html
+
+    - name: Report SAT Errors as Annotations
+      if: ${{ matrix.java == '21' && always() && ((steps.build.outcome == 'success') || (steps.build.outcome == 'failure')) }}
+      uses: ghys/checkstyle-github-action@main
+      with:
+        title: CheckStyle Violations
+        path: '**/checkstyle-result.xml'
+        mode: inline
