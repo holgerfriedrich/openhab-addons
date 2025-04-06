@@ -108,6 +108,25 @@ jobs:
           echo "::error::Files have changed: $CHANGED_FILES"
           exit 1
 
+      - name: SpotBugs Violations
+        id: spotbugs
+        run: './.github/scripts/maven-build sat:spotbugs -B -T 1.5C -U -Dspotless.check.skip=true -DskipTests'
+        env:
+          CHANGED_FILES: ${{ steps.files.outputs.all }}
+          MAVEN_OPTS: >-
+            -Xmx2g
+            -Dmaven.wagon.http.retryHandler.count=5
+            -Dmaven.wagon.httpconnectionManager.ttlSeconds=25
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+
+      - name: Upload SpotBugs Violations
+        id: upload-checkstyle
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-violations
+          path: '**/target/code-analysis/spotbugs*.xml'
+          retention-days: 1
+
       - name: Upload class files
         id: upload-class-files
         uses: actions/upload-artifact@v4
