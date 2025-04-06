@@ -74,7 +74,7 @@ jobs:
 
       - name: Build
         id: build
-        run: './.github/scripts/maven-build verify -B -T 1.5C -U -DskipChecks'
+        run: './.github/scripts/maven-build install -B -T 1.5C -U -Dspotless.check.skip=true -DskipChecks -DskipTests'
         env:
           CHANGED_FILES: ${{ steps.files.outputs.all }}
           MAVEN_OPTS: >-
@@ -106,6 +106,23 @@ jobs:
         run: |
           echo "::error::Files have changed: $CHANGED_FILES"
           exit 1
+
+      - name: Upload class files
+        id: upload-class-files
+        uses: actions/upload-artifact@v4
+        with:
+          name: classes
+          path: **/*.class
+          retention-days: 1
+
+
+      - name: Upload JAR files
+        id: upload-jar-files
+        uses: actions/upload-artifact@v4
+        with:
+          name: jars
+          path: **/*.jar
+          retention-days: 1
 
   checks:
     strategy:
