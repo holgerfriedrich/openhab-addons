@@ -113,7 +113,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: classes
-          path: **/*.class
+          path: '**/*.class'
           retention-days: 1
 
 
@@ -122,7 +122,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jars
-          path: **/*.jar
+          path: '**/*.jar'
           retention-days: 1
 
   checks:
