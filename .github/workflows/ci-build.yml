@@ -12,7 +12,6 @@ on:
     paths-ignore:
       - '.github/**/*.md'
   workflow_dispatch:
-  workflow_call:
 
 jobs:
   build:
