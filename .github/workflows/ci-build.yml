@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.github.label.name == null || github.event.label.name == 'rebuild' }}  
+    if: ${{ github.event.label.name == 'rebuild' }}  
     strategy:
       fail-fast: false
       matrix:
