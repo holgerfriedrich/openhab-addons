@@ -16,7 +16,7 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event.github.event.action != 'labeled' }} || ${{ github.event.label.name == 'rebuild' }}  
+    if: ${{ github.event.github.event.action != 'labeled' || github.event.label.name == 'rebuild' }}  
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +28,9 @@ jobs:
     # typical duration is ~70min, set twice the amount as limit (default is 6h)
     timeout-minutes: 140
     steps:
+      - name: Dump
+        run: |
+          echo ${{ toJSON(github) }}
       - name: Checkout
         if: github.head_ref == ''
         uses: actions/checkout@v4
