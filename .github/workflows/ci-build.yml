@@ -12,11 +12,11 @@ on:
       - 'main'
     paths-ignore:
       - '.github/**/*.md'
-  workflow_dispatch:
-  workflow_call:
+    types: [labeled, unlabeled]
 
 jobs:
   build:
+    if: ${{ github.event.github.event.action != 'labeled' }} || ${{ github.event.label.name == 'rebuild' }}  
     strategy:
       fail-fast: false
       matrix:
