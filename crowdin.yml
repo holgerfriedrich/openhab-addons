@@ -3,3 +3,4 @@ files:
     ignore:
       - /bundles/**/i18n/**/*_*.properties
     translation: /%original_path%/%file_name%_%two_letters_code%.properties
+
