@@ -11,7 +11,7 @@ on:
       - 'main'
     paths-ignore:
       - '.github/**/*.md'
-    types: [labeled]
+    types: [opened,synchronize,reopened,labeled]
   workflow_dispatch:
 
 jobs:
