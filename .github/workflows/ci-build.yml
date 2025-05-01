@@ -28,6 +28,10 @@ jobs:
     # typical duration is ~70min, set twice the amount as limit (default is 6h)
     timeout-minutes: 140
     steps:
+      - name: Dump Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: Checkout
         if: github.head_ref == ''
         uses: actions/checkout@v4
