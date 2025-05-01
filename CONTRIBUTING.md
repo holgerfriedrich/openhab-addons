@@ -1,5 +1,6 @@
 # Contributing to openHAB
 
+
 Want to hack on openHAB? Awesome! Here are instructions to get you
 started. They are probably not perfect, please let us know if anything
 feels wrong or incomplete.
