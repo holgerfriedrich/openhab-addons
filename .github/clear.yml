@@ -4,6 +4,8 @@ name: Close Ignored Dependabot PRs
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
 
 jobs:
   close-ignored-prs:
