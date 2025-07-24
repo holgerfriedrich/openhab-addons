@@ -1,0 +1,66 @@
+
+name: Close Ignored Dependabot PRs
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  close-ignored-prs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install yq and jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yq jq
+
+      - name: Read ignore list from dependabot.yml
+        id: read-ignore
+        run: |
+          IGNORE_PATTERNS=$(yq '.updates[].ignore[]?.dependency-name // empty' .github/dependabot.yml | sed '/^$/d' | jq -R -s -c 'split("\n")')
+          echo "ignore_patterns=$IGNORE_PATTERNS" >> $GITHUB_OUTPUT
+
+      - name: Close PRs for ignored packages
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ignorePatterns = JSON.parse('${{ steps.read-ignore.outputs.ignore_patterns }}');
+
+            const wildcardToRegex = (pattern) => {
+              return new RegExp('^' + pattern
+                .replace(/[.+^${}()|[\]\\]/g, '\\$&')  // escape regex special chars
+                .replace(/\*/g, '.*') + '$');
+            };
+
+            const matchers = ignorePatterns.map(wildcardToRegex);
+
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            for (const pr of prs) {
+              if (pr.user.login !== 'dependabot[bot]') continue;
+
+              const title = pr.title;
+
+              for (const matcher of matchers) {
+                if (matcher.test(title)) {
+                  await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    state: 'closed',
+                  });
+                  console.log(`Closed PR #${pr.number}: ${title}`);
+                  break;
+                }
+              }
+            }
