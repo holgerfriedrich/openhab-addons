@@ -15,7 +15,7 @@
   <name>openHAB Add-ons :: Bundles :: Automation :: Python Scripting</name>
 
   <properties>
-    <graalpy.version>24.2.1</graalpy.version>
+    <graalpy.version>24.2.2</graalpy.version>
     <helperlib.version>v1.0.0</helperlib.version>
   </properties>
 
