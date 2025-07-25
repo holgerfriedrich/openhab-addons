@@ -53,6 +53,7 @@ jobs:
               if (pr.user.login !== 'dependabot[bot]') continue;
 
               const title = pr.title;
+              const desc = pr.description;
 
               for (const matcher of matchers) {
                 if (matcher.test(title)) {
