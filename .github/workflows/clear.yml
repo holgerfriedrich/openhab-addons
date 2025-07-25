@@ -51,13 +51,12 @@ jobs:
             });
 
             for (const pr of prs) {
-              console.log(`${pr.number}`);
               if (pr.user.login !== 'dependabot[bot]') continue;
 
               const title = pr.title;
-              console.log(`${pr.title}`);
 
               for (const matcher of matchers) {
+                console.log(`${matcher.toString()}`);
                 if (matcher.test(title)) {
                   await github.rest.pulls.update({
                     owner: context.repo.owner,
