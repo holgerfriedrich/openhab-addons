@@ -36,9 +36,9 @@ jobs:
             const ignorePatterns = JSON.parse('${{ steps.read-ignore.outputs.ignore_patterns }}');
 
             const wildcardToRegex = (pattern) => {
-              return new RegExp('^' + pattern
+              return new RegExp('^Bump ' + pattern
                 .replace(/[.+^${}()|[\]\\]/g, '\\$&')  // escape regex special chars
-                .replace(/\*/g, '.*') + '$');
+                .replace(/\*/g, '.*') + ' from .*$');
             };
 
             const matchers = ignorePatterns.map(wildcardToRegex);
