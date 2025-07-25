@@ -23,8 +23,8 @@ jobs:
       - name: Read ignore list from dependabot.yml
         id: read-ignore
         run: |
-          IGNORE_PATTERNS=$(yq '.updates[].ignore[]?.dependency-name // empty' .github/dependabot.yml | sed '/^$/d' | jq -R -s -c 'split("\n")')
-          echo "ignore_patterns=$IGNORE_PATTERNS" >> $GITHUB_OUTPUT
+          IGNORE_PATTERNS=$(yq '.updates[] | select(.ignore) | .ignore[].dependency-name // empty' .github/dependabot.yml 2>/dev/null | sed '/^$/d' | jq -R -s -c 'split("\n")')
+          echo "ignore_patterns=${IGNORE_PATTERNS:-[]}" >> $GITHUB_OUTPUT
 
       - name: Close PRs for ignored packages
         uses: actions/github-script@v7
