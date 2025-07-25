@@ -23,8 +23,7 @@ jobs:
       - name: Read ignore list from dependabot.yml
         id: read-ignore
         run: |
-          yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml
-          IGNORE_PATTERNS=$( yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml 2>/dev/null | sed 's/^"//' | sed 's/"$//' | sed '/^$/d' | jq -R -s -c 'split("\n")')
+          IGNORE_PATTERNS=$( yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml 2>/dev/null | sed 's/"$//' | sed '/^$/d' | sed 's/^"//' | jq -R -s -c 'split("\n")')
           echo "ignore_patterns=${IGNORE_PATTERNS:-[]}"
           echo "ignore_patterns=${IGNORE_PATTERNS:-[]}" >> $GITHUB_OUTPUT
 
@@ -56,7 +55,6 @@ jobs:
               const title = pr.title;
 
               for (const matcher of matchers) {
-                console.log(`${matcher.toString()}`);
                 if (matcher.test(title)) {
                   await github.rest.pulls.update({
                     owner: context.repo.owner,
@@ -66,6 +64,8 @@ jobs:
                   });
                   console.log(`Closed PR #${pr.number}: ${title}`);
                   break;
+                } else {
+                  console.log(`${title} did not match ${matcher}`);
                 }
               }
             }
