@@ -24,7 +24,7 @@ jobs:
         id: read-ignore
         run: |
           yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml
-          IGNORE_PATTERNS=$( yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml 2>/dev/null | sed '/^$/d' | sed 's/^"//' | sed 's/"$//' | jq -R -s -c 'split("\n")')
+          IGNORE_PATTERNS=$( yq '.updates[]  | select(.ignore) | .ignore[]."dependency-name" // empty' .github/dependabot.yml 2>/dev/null | sed 's/^"//' | sed 's/"$//' | sed '/^$/d' | jq -R -s -c 'split("\n")')
           echo "ignore_patterns=${IGNORE_PATTERNS:-[]}"
           echo "ignore_patterns=${IGNORE_PATTERNS:-[]}" >> $GITHUB_OUTPUT
 
@@ -51,9 +51,11 @@ jobs:
             });
 
             for (const pr of prs) {
+              echo pr.number;
               if (pr.user.login !== 'dependabot[bot]') continue;
 
               const title = pr.title;
+              echo pr.title;
 
               for (const matcher of matchers) {
                 if (matcher.test(title)) {
