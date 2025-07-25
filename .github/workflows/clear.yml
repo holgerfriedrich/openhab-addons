@@ -51,11 +51,11 @@ jobs:
             });
 
             for (const pr of prs) {
-              echo ${pr.number};
+              console.log(`${pr.number}`);
               if (pr.user.login !== 'dependabot[bot]') continue;
 
               const title = pr.title;
-              echo ${pr.title};
+              console.log(`${pr.title}`);
 
               for (const matcher of matchers) {
                 if (matcher.test(title)) {
