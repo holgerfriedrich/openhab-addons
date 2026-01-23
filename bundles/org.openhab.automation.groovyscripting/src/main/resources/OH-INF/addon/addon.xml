@@ -6,6 +6,6 @@
 	<type>automation</type>
 	<name>Groovy Scripting</name>
 	<description>This adds a Groovy script engine.</description>
-	<connection>none</connection>
+	<Xconnection>none</Xconnection>
 
 </addon:addon>
