@@ -72,6 +72,7 @@ public class HomeAssistantDiscoveryTests extends AbstractHomeAssistantTests {
         discovery.receivedMessage(HA_UID, bridgeConnection,
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601AutoLock.json"));
+        discovery.publishResults(); // Manually trigger publish since scheduler isn't running in tests
 
         // Then one thing found
         assertTrue(latch.await(DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS));
@@ -99,6 +100,7 @@ public class HomeAssistantDiscoveryTests extends AbstractHomeAssistantTests {
         discovery.receivedMessage(HA_UID, bridgeConnection,
                 "homeassistant/climate/0x847127fffe11dd6a_climate_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601ClimateThermostat.json"));
+        discovery.publishResults(); // Manually trigger publish since scheduler isn't running in tests
 
         // Then one thing found
         assertTrue(latch.await(DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS));
@@ -120,6 +122,7 @@ public class HomeAssistantDiscoveryTests extends AbstractHomeAssistantTests {
         discovery.receivedMessage(HA_UID, bridgeConnection,
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601AutoLock.json"));
+        discovery.publishResults(); // Manually trigger publish since scheduler isn't running in tests
 
         assertTrue(latch.await(DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS));
         discoveryResults = discoveryListener.getDiscoveryResults();
@@ -149,6 +152,7 @@ public class HomeAssistantDiscoveryTests extends AbstractHomeAssistantTests {
         discovery.receivedMessage(HA_UID, bridgeConnection,
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config",
                 getResourceAsByteArray("component/configTS0601AutoLock.json"));
+        discovery.publishResults(); // Manually trigger publish since scheduler isn't running in tests
 
         // Then one thing found
         assertTrue(latch.await(DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS));
@@ -169,6 +173,7 @@ public class HomeAssistantDiscoveryTests extends AbstractHomeAssistantTests {
         latch = discoveryListener.createWaitForThingsDiscoveredLatch(1);
         discovery.topicVanished(HA_UID, bridgeConnection,
                 "homeassistant/switch/0x847127fffe11dd6a_auto_lock_zigbee2mqtt/config");
+        discovery.publishResults(); // Manually trigger publish since scheduler isn't running in tests
 
         assertTrue(latch.await(DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS));
         discoveryResults = discoveryListener.getDiscoveryResults();
