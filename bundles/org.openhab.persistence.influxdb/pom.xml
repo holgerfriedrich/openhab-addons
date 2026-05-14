@@ -15,11 +15,11 @@
   <name>openHAB Add-ons :: Bundles :: Persistence Service :: InfluxDB</name>
 
   <properties>
-    <bnd.importpackage>!javax.annotation.*;!android.*,!com.android.*,!com.google.appengine.*,!dalvik.system,!kotlin.*,!kotlinx.*,!org.conscrypt,!sun.security.ssl,!org.apache.harmony.*,!org.apache.http.*,!rx.*,!org.msgpack.*,!org.bouncycastle.*,!org.openjsse.*</bnd.importpackage>
-    <retrofit.version>2.10.0</retrofit.version>
-    <influx2.version>7.0.0</influx2.version>
-    <influx1.version>2.24</influx1.version>
-    <io.reactivex.rxjava3>3.1.8</io.reactivex.rxjava3>
+    <bnd.importpackage>!javax.annotation.*;!android.*,!com.android.*,!com.google.appengine.*,!dalvik.system,!kotlin.*,!kotlinx.*,!org.conscrypt,!sun.security.ssl,!org.apache.harmony.*,!org.apache.http.*,!rx.*,!org.msgpack.*,!org.bouncycastle.*,!org.openjsse.*,!sun.nio.ch.*</bnd.importpackage>
+    <retrofit.version>2.11.0</retrofit.version>
+    <influx2.version>8.0.0</influx2.version>
+    <influx1.version>2.25</influx1.version>
+    <io.reactivex.rxjava3>3.1.10</io.reactivex.rxjava3>
   </properties>
 
   <dependencies>
@@ -113,7 +113,19 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
-      <version>1.10.0</version>
+      <version>1.14.1</version>
+    </dependency>
+    <!-- transitive dep of commons-csv -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.19.0</version>
+    </dependency>
+    <!-- transitive dep of commons-csv -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.20.0</version>
     </dependency>
     <dependency>
       <groupId>org.reactivestreams</groupId>
