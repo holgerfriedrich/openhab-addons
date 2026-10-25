@@ -905,13 +905,13 @@ public class Back2BackTest {
         // DPT 243.600 DPT_Colour_Transition_xyY
         // time(2) y(2) x(2), %brightness(1), flags(1)
         helper("243.600", new byte[] { 0, 5, 0x7F, 0, (byte) 0xfe, 0, 42, 3 },
-                new StringType("(0.9922, 0.4961) 16.5 % 500 ms"));
+                new StringType("(0.4961, 0.9922) 16.5 % 500 ms"));
         helper("243.600", new byte[] { (byte) 0x02, (byte) 0x00, 0x7F, 0, (byte) 0xfe, 0, 42, 3 },
-                new StringType("(0.9922, 0.4961) 16.5 % 51200 ms"));
+                new StringType("(0.4961, 0.9922) 16.5 % 51200 ms"));
         helper("243.600", new byte[] { (byte) 0x40, (byte) 0x00, 0x7F, 0, (byte) 0xfe, 0, 42, 3 },
-                new StringType("(0.9922, 0.4961) 16.5 % 1638400 ms"));
+                new StringType("(0.4961, 0.9922) 16.5 % 1638400 ms"));
         helper("243.600", new byte[] { (byte) 0xff, (byte) 0xff, 0x7F, 0, (byte) 0xfe, 0, 42, 3 },
-                new StringType("(0.9922, 0.4961) 16.5 % 6553500 ms"));
+                new StringType("(0.4961, 0.9922) 16.5 % 6553500 ms"));
         // DPT 249.600 DPT_Brightness_Colour_Temperature_Transition
         // time(2) colortemp(2), brightness(1), flags(1)
         helper("249.600", new byte[] { 0, 5, 0, 40, 127, 7 }, new StringType("49.8 % 40 K 0.5 s"));
