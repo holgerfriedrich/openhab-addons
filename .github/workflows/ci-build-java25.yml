@@ -1,0 +1,126 @@
+name: CI (Java 25, Maven 4)
+
+# Checks that the add-ons build and their tests pass with Java 25 bytecode (-Pj25) and a Maven 4 release
+# candidate. The artifacts require Java 25 and are not deployed.
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths-ignore:
+      - '.github/**/*.md'
+  pull_request:
+    branches:
+      - 'main'
+    paths-ignore:
+      - '.github/**/*.md'
+  workflow_dispatch:
+    inputs:
+      maven:
+        description: 'Maven version used instead of the wrapper default'
+        required: true
+        default: '4.0.0-rc-7'
+        type: string
+
+permissions: {}
+
+env:
+  MAVEN_VERSION: ${{ inputs.maven || '4.0.0-rc-7' }}
+
+jobs:
+  build:
+    name: Build (Java 25, Maven ${{ inputs.maven || '4.0.0-rc-7' }})
+    runs-on: ubuntu-26.04
+    # typical duration is ~70min, set twice the amount as limit (default is 6h)
+    timeout-minutes: 140
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          persist-credentials: false
+
+      - name: Set up Cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/openhab
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Get Changed Files
+        if: github.head_ref != ''
+        shell: bash
+        run: |
+          CHANGED_FILES_FILE="$RUNNER_TEMP/changed-files.txt"
+          echo "CHANGED_FILES_FILE=$CHANGED_FILES_FILE" >> "$GITHUB_ENV"
+          git diff --name-only --no-renames HEAD^1 HEAD > "$CHANGED_FILES_FILE"
+          count=$(wc -l < "$CHANGED_FILES_FILE")
+          echo "Found $count changed files."
+          echo "::group::Changed files"
+          if [[ -s "$CHANGED_FILES_FILE" ]]; then
+            cat "$CHANGED_FILES_FILE"
+          else
+            echo "No changed files found."
+          fi
+          echo "::endgroup::"
+
+      - name: Set up Maven ${{ env.MAVEN_VERSION }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # the wrapper does not accept a Maven version on the command line, so point its distributionUrl to the
+          # requested release; Maven Central only publishes SHA-512 for it, the wrapper only checks SHA-256
+          url="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN_VERSION}/apache-maven-${MAVEN_VERSION}-bin.zip"
+          zip="$RUNNER_TEMP/apache-maven-bin.zip"
+          curl -fsSL -o "$zip" "$url"
+          echo "$(curl -fsSL "$url.sha512" | cut -d' ' -f1)  $zip" | sha512sum -c -
+          sha256=$(sha256sum "$zip" | cut -d' ' -f1)
+          props=.mvn/wrapper/maven-wrapper.properties
+          sed -i -e "s#^distributionUrl=.*#distributionUrl=$url#" -e "s#^distributionSha256Sum=.*#distributionSha256Sum=$sha256#" "$props"
+          cat "$props"
+
+      - name: Build
+        id: build
+        run: bash './.github/scripts/maven-build' clean verify -B -ntp -T 1.5C -U -Pj25 -DskipChecks
+        env:
+          MAVEN_OPTS: >-
+            -Xmx8g
+
+      - name: Restore Maven Wrapper
+        if: ${{ !cancelled() }}
+        run: git checkout -- .mvn/wrapper/maven-wrapper.properties
+
+      - name: Upload Build Log
+        if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build.outcome == 'failure') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-log-java-25-maven-${{ env.MAVEN_VERSION }}
+          path: build.log
+          if-no-files-found: error
+
+      # this will identify modifications to files under source control during the workflow run;
+      # untracked files will be included as well!
+      - name: Verify Changed Files
+        id: verify-changed-files
+        if: ${{ !cancelled() }}
+        run: |
+          set -o pipefail
+          changed_files=$(echo -n "$(git diff --name-only HEAD && git ls-files --others --exclude-standard)" | tr '\n' ' ')
+          echo "changed_files=$changed_files" >> $GITHUB_OUTPUT
+
+      - name: Fail on Changed Files
+        if: ${{ !cancelled() && steps.verify-changed-files.outputs.changed_files != '' }}
+        env:
+          CHANGED_FILES: ${{ steps.verify-changed-files.outputs.changed_files }}
+        run: |
+          echo "::error::Files have changed: $CHANGED_FILES"
+          exit 1
